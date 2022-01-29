@@ -37,6 +37,9 @@ import techreborn.config.TechRebornConfig;
 import techreborn.init.TRContent.Ingots;
 import techreborn.init.TRContent.Parts;
 
+import java.util.List;
+import java.util.stream.StreamSupport;
+
 public class ModLoot {
 
 	public static void init() {
@@ -89,47 +92,56 @@ public class ModLoot {
 
 		LootTableLoadingCallback.EVENT.register((resourceManager, lootManager, ident, supplier, setter) -> {
 			String stringId = ident.toString();
-			if (!stringId.startsWith("minecraft:chests")) {
+			if (!stringId.contains("chests")) {
 				return;
 			}
-
 			if (TechRebornConfig.enableOverworldLoot) {
-				switch (stringId) {
-					case "minecraft:chests/abandoned_mineshaft",
-						"minecraft:chests/desert_pyramid",
-						"minecraft:chests/igloo_chest",
-						"minecraft:chests/jungle_temple",
-						"minecraft:chests/simple_dungeon",
-						"minecraft:chests/shipwreck_treasure",
-						"minecraft:chest/underwater_ruin_small",
-						"minecraft:chests/village/village_weaponsmith",
-						"minecraft:chests/village/village_armorer",
-						"minecraft:chests/village/village_toolsmith"
-							-> supplier.withPool(poolBasic);
-					case "minecraft:chests/stronghold_corridor",
-						"minecraft:chests/stronghold_crossing",
-						"minecraft:chests/stronghold_library",
-						"minecraft:chest/underwater_ruin_big",
-						"minecraft:chests/pillager_outpost"
-							-> supplier.withPool(poolAdvanced);
-					case "minecraft:chests/woodland_mansion"
-							-> supplier.withPool(poolIndustrial);
+				if (containsAnyOf(stringId,
+					List.of("mineshaft",
+						"dungeon",
+						"shipwreck",
+						"ruin_small",
+						"weaponsmith",
+						"armorer",
+						"toolsmith")
+					)
+				) {
+					supplier.withPool(poolBasic);
+				}
+				else if (containsAnyOf(stringId,
+					List.of(
+						"ruin_big",
+						"outpost",
+						"igloo",
+						"temple"
+						)
+						)
+				) {
+					supplier.withPool(poolAdvanced);
+				}
+				else if (containsAnyOf(stringId,
+					List.of(
+						"stronghold",
+						"mansion",
+						"pyramid"
+						)
+					)
+				) {
+					supplier.withPool(poolIndustrial);
 				}
 			}
 
 			if (TechRebornConfig.enableNetherLoot) {
-				if (stringId.equals("minecraft:chests/nether_bridge") ||
-						stringId.equals("minecraft:chests/bastion_bridge") ||
-						stringId.equals("minecraft:chests/bastion_hoglin_stable") ||
-						stringId.equals("minecraft:chests/bastion_treasure") ||
-						stringId.equals("minecraft:chests/bastion_other")) {
+				if (containsAnyOf(stringId,
+					List.of("bridge", "bastion","cities"
+					))) {
 					supplier.withPool(poolAdvanced);
 				}
 			}
 
 			if (TechRebornConfig.enableEndLoot) {
-				if (stringId.equals("minecraft:chests/end_city_treasure")) {
-					supplier.withPool(poolIndustrial);
+				if (containsAnyOf(stringId, List.of("end"))) {
+					supplier.withPool(poolAdvanced);
 				}
 			}
 
@@ -157,6 +169,8 @@ public class ModLoot {
 		return ItemEntry.builder(item).weight(weight)
 				.apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 2.0f))).build();
 	}
-
+	private static boolean containsAnyOf(String checkString, Iterable<String> iterable){
+		return StreamSupport.stream(iterable.spliterator(), false).anyMatch(checkString::contains);
+	}
 
 }
