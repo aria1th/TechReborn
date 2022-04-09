@@ -116,7 +116,7 @@ public class StorageUnitBaseBlockEntity extends MachineBaseBlockEntity implement
 		lockedItemStack = value ? stack : ItemStack.EMPTY;
 		syncWithAll();
 	}
-
+	
 	public boolean canModifyLocking() {
 		// Can always be unlocked
 		if (isLocked()) {
