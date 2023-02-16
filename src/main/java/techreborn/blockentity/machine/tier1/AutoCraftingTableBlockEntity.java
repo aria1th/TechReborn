@@ -77,8 +77,8 @@ public class AutoCraftingTableBlockEntity extends PowerAcceptorBlockEntity
 	private final int EXTRA_OUTPUT_SLOT = CRAFTING_AREA + 1;
 
 	public int progress;
-	public int maxProgress = 120;
-	public int euTick = 10;
+	public int maxProgress = 5;
+	public int euTick = 40;
 	public int balanceSlot = 0;
 
 	private List<Item> cachedInventoryStructure = null;

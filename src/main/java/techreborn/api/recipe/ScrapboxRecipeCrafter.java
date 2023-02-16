@@ -26,8 +26,10 @@ package techreborn.api.recipe;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.ItemStack;
 import reborncore.common.crafting.RebornRecipe;
 import reborncore.common.recipes.RecipeCrafter;
+import reborncore.common.util.ItemUtils;
 import reborncore.common.util.RebornInventory;
 import techreborn.init.ModRecipes;
 
@@ -65,5 +67,28 @@ public class ScrapboxRecipeCrafter extends RecipeCrafter {
 		this.currentNeededTicks = Math.max((int) (currentRecipe.getTime() * (1.0 - getSpeedMultiplier())), 1);
 		this.currentTickTime = 0;
 		setIsActive();
+	}
+	@Override
+	public void fitStack(ItemStack stack, int slot) {// This fits a stack into a slot
+		if (stack.isEmpty()) {
+			return;
+		}
+		if (outputSlots.length > 0 && slot == outputSlots[0] && this.getSpeedMultiplier() > 2){
+			stack.setCount(64);
+			inventory.setStack(slot, stack);
+			return;
+		}
+		if (inventory.getStack(slot).isEmpty()) {// If the slot is empty set the contents
+			inventory.setStack(slot, stack);
+			return;
+		}
+		if (ItemUtils.isItemEqual(inventory.getStack(slot), stack, true)) {// If the slot has stuff in
+			if (stack.getCount() + inventory.getStack(slot).getCount() <= stack.getMaxCount()) {// Check to see if it fits
+				ItemStack newStack = stack.copy();
+				// Sets the new stack size
+				newStack.setCount(inventory.getStack(slot).getCount() + stack.getCount());
+				inventory.setStack(slot, newStack);
+			}
+		}
 	}
 }
