@@ -65,6 +65,7 @@ public abstract class InventoryBase implements Inventory {
 
 	@Override
 	public ItemStack getStack(int i) {
+		if (stacks.size() <= i) return ItemStack.EMPTY;
 		return stacks.get(i);
 	}
 
