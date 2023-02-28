@@ -86,6 +86,9 @@ public class RecyclerRecipeCrafter extends RecipeCrafter {
 		// Dirty hack for chance based crafting
 		final int randomChance = Objects.requireNonNull(blockEntity.getWorld()).random.nextInt(TechRebornConfig.recyclerChance);
 		if (randomChance == 1) {
+			if (outputSlots.length > 0 && slot == outputSlots[0] && this.getSpeedMultiplier() > 2){
+				stack.setCount(64);
+			}
 			super.fitStack(stack, slot);
 		}
 	}
