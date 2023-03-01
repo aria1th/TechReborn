@@ -64,25 +64,37 @@ public class MatterFabricatorBlockEntity extends PowerAcceptorBlockEntity
 	}
 
 	private boolean spaceForOutput(int slot) {
-		return inventory.getStack(slot).isEmpty()
-				|| ItemUtils.isItemEqual(inventory.getStack(slot), TRContent.Parts.UU_MATTER.getStack(), true, true)
-				&& inventory.getStack(slot).getCount() < 64;
+		ItemStack invStack = this.inventory.getStack(slot);
+		return invStack.isEmpty()
+				|| invStack.isOf(TRContent.Parts.UU_MATTER.asItem())
+				&& invStack.getCount() < invStack.getMaxCount();
 	}
 
 	private void addOutputProducts() {
 		for (int i = 6; i < 11; i++) {
 			if (spaceForOutput(i)) {
-				addOutputProducts(i);
+				addOutputProductTo(i);
 				break;
 			}
 		}
 	}
 
-	private void addOutputProducts(int slot) {
+	private void addOutputProducts(int amount) {
+		for (int i = 6; i < 11; i++) {
+			if (spaceForOutput(i)) {
+				addOutputProductTo(i);
+				amount--;
+				if (amount <= 0) break;
+			}
+		}
+	}
+
+	private void addOutputProductTo(int slot) {
+		ItemStack invStack = this.inventory.getStack(slot);
 		if (inventory.getStack(slot).isEmpty()) {
 			inventory.setStack(slot, TRContent.Parts.UU_MATTER.getStack());
-		} else if (ItemUtils.isItemEqual(this.inventory.getStack(slot), TRContent.Parts.UU_MATTER.getStack(), true, true)) {
-			inventory.getStack(slot).setCount((Math.min(64, 1 + inventory.getStack(slot).getCount())));
+		} else {
+			invStack.increment(1);
 		}
 	}
 
@@ -134,9 +146,10 @@ public class MatterFabricatorBlockEntity extends PowerAcceptorBlockEntity
 		}
 
 		if (amplifier >= TechRebornConfig.matterFabricatorFabricationRate) {
-			if (spaceForOutput()) {
-				addOutputProducts();
-				amplifier -= TechRebornConfig.matterFabricatorFabricationRate;
+			int amount = Math.floorDiv(amplifier , TechRebornConfig.matterFabricatorFabricationRate);
+			if (amount >= 0 && spaceForOutput()) {
+				addOutputProducts(amount);
+				amplifier -= amount * TechRebornConfig.matterFabricatorFabricationRate;
 			}
 		}
 	}
